@@ -16,7 +16,8 @@ import { PrismaService } from './prisma/prisma.service';
     ProductsModule, 
     OrdersModule, 
     IntegrationsModule, 
-    UsersModule
+    UsersModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [PrismaService],
