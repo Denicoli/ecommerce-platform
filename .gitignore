@@ -1,0 +1,17 @@
+# Root-level
+node_modules/
+.env
+dist/
+*.log
+
+# Web
+web/node_modules
+web/dist
+
+# Backend
+backend/node_modules
+backend/dist
+
+# Mobile
+mobile/build
+mobile/.dart_tool
