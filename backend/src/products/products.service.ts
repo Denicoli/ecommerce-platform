@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import axios from 'axios';
+import { EXTERNAL_APIS } from 'src/config/external-apis';
+import { NormalizedProduct } from './interfaces/product-source.interface';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class ProductsService {
@@ -9,83 +12,106 @@ export class ProductsService {
     constructor(private readonly prisma: PrismaService) {}
 
     async syncProducts(): Promise<void> {
-        const apiBr = await axios.get('');
-        const apiEu = await axios.get('');
+        try {
+            const [brRes, euRes] = await Promise.all([
+                axios.get(EXTERNAL_APIS.BRAZILIAN_PROVIDER.BASE_URL),
+                axios.get(EXTERNAL_APIS.EUROPEAN_PROVIDER.BASE_URL),
+            ]);
 
-        const products = [
-            ...this.normalizeApiBr(apiBr.data, 'API_BR'), // API BR
-            ...this.normalizeApiEu(apiEu.data, 'API_EU'), // API EU
-        ];
+            const products: NormalizedProduct[] = [
+                ...this.normalizeApiBr(brRes.data, 'API_BR'),
+                ...this.normalizeApiEu(euRes.data, 'API_EU'),
+            ];
 
-        for (const product of products) {
-            await this.prisma.product.upsert({
-                where: {
-                    externalId_source: {
-                        externalId: product.externalId,
-                        source: product.source,
+            const upserts = products.map(product =>
+                this.prisma.product.upsert({
+                    where: { 
+                        externalId_source: {
+                            externalId: product.externalId,
+                            source: product.source,
+                        },
                     },
-                },
-                update: product,
-                create: product,
-            });
-        }
+                    update: product,
+                    create: product,
+                })
+            );
+            
+            await Promise.allSettled(upserts);
 
-        this.logger.log(`${products.length} products synchronized successfully.`);
+            this.logger.log(`[SYNC] ${products.length} products synchronized successfully.`);
+        } catch (error) {
+            this.logger.error('Error synchronizing products:', error);
+            throw new Error('Failed to synchronize products');
+        }
     }
 
-    private normalizeApiBr(data: any[], source: string) {
+    private normalizeApiBr(data: any[], source: 'API_BR'): NormalizedProduct[] {
         return data.map(item => ({
             externalId: item.id,
-            source: source,
+            source,
             name: item.nome,
             description: item.descricao ?? '',
             category: item.categoria ?? '',
             image: item.imagem ?? '',
-            galery: item.imagem ? [item.imagem] : [],
-            price: item.preco ?? 0.0,
+            gallery: item.imagem ? [item.imagem] : [],
+            price: item.preco ?? 0,
             discount: null,
             material: item.material ?? '',
             department: item.departamento ?? '',
         }));
     }
 
-    private normalizeApiEu(data: any[], source: string) {
+    private normalizeApiEu(data: any[], source: 'API_EU'): NormalizedProduct[] {
         return data.map(item => ({
             externalId: item.id,
-            source: source,
+            source,
             name: item.name,
             description: item.description ?? '',
             category: item.details?.adjective ?? '',
-            image: item.galery?.[0].image_url ?? '',
-            gallery: item.galery ?? [],
-            price: item.price ?? 0.0,
-            discount: item.discount ?? null,
+            image: item.gallery?.[0] ?? '',
+            gallery: item.gallery ?? [],
+            price: item.price ?? 0,
+            discount: item.discountValue ? item.discountValue : null,
             material: item.details?.material ?? '',
             department: '',
         }));
     }
 
-    async findAll(query: any): Promise<any> {
+    async findAll(query: any): Promise<NormalizedProduct[]> {
         const { name, category, minPrice, maxPrice } = query;
 
-        return this.prisma.product.findMany({
+        const products = await this.prisma.product.findMany({
             where: {
                 name: name ? { contains: name, mode: 'insensitive' } : undefined,
                 category: category || undefined,
                 price: {
-                    gte: minPrice ? parseFloat(minPrice) : undefined,
-                    lte: maxPrice ? parseFloat(maxPrice) : undefined,
+                    gte: minPrice ? new Decimal(minPrice) : undefined,
+                    lte: maxPrice ? new Decimal(maxPrice) : undefined,
                 },
             },
             orderBy: {
                 name: 'asc',
             },
         });
+
+        return products.map(product => ({
+            ...product,
+            price: product.price.toNumber(),
+            discount: product.discount ? product.discount.toNumber() : null,
+        }));
     }
 
-    async findOne(id: string): Promise<any> {
-        return this.prisma.product.findUnique({
+    async findOne(id: string): Promise<NormalizedProduct | null> {
+        const product = await this.prisma.product.findUnique({
             where: { id },
         });
+        
+        if (!product) return null;
+
+        return {
+            ...product,
+            price: product.price.toNumber(),
+            discount: product.discount ? product.discount.toNumber() : null,
+        };
     }
 }
