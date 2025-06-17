@@ -15,3 +15,5 @@ backend/dist
 # Mobile
 mobile/build
 mobile/.dart_tool
+
+.vscode
