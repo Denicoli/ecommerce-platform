@@ -27,8 +27,8 @@ model Product {
   category    String?
   image       String?
   gallery     String[]
-  price       Float
-  discount    Float?
+  price       Decimal  @db.Decimal(10, 2)
+  discount    Decimal? @db.Decimal(5, 2)
   material    String?
   department  String?
 
