@@ -1,6 +1,7 @@
+import { IsArray, ArrayNotEmpty } from "class-validator";
+
 export class CreateOrderDto {
-  products: {
-    productId: string;
-    quantity: number;
-  }[];
+  @IsArray()
+  @ArrayNotEmpty()
+  products: { productId: string; quantity: number; }[];
 }
