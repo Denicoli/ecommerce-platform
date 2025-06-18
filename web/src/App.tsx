@@ -1,10 +1,25 @@
-import { BrowserRouter } from 'react-router-dom'
-import { Router } from './router'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
+import { Home } from './pages/Home'
+import { Login } from './pages/Login'
+import { RequireAuth } from './components/RequireAuth'
 
 function App() {
   return (
     <BrowserRouter>
-      <Router />
+      <AuthProvider>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <RequireAuth>
+                <Home />
+              </RequireAuth>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }
