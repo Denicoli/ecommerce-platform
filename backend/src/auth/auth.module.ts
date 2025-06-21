@@ -14,6 +14,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  exports: [JwtModule],
+  exports: [AuthService],
 })
 export class AuthModule {}
