@@ -36,6 +36,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCartItems([])
   }
 
+  function incrementQuantity(productId: string) {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    )
+  }
+
+  function decrementQuantity(productId: string) {
+    setCartItems((prev) =>
+      prev.map((item) => {
+        if (item.id === productId) {
+          const newQuantity = item.quantity - 1
+          return { ...item, quantity: newQuantity < 1 ? 1 : newQuantity }
+        }
+        return item
+      })
+    )
+  }
+
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0)
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -48,6 +68,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         cartItems,
         addToCart,
         removeFromCart,
+        incrementQuantity,
+        decrementQuantity,
         clearCart,
         totalItems,
         totalPrice

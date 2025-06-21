@@ -9,6 +9,8 @@ export interface CartContextProps {
   cartItems: CartItem[]
   addToCart: (product: Product) => void
   removeFromCart: (productId: string) => void
+  incrementQuantity: (productId: string) => void
+  decrementQuantity: (productId: string) => void
   clearCart: () => void
   totalItems: number
   totalPrice: number
