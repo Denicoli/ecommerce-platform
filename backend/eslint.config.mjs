@@ -36,7 +36,7 @@ export default tseslint.config(
       '@typescript-eslint/explicit-function-return-type': 'warn',
       '@typescript-eslint/explicit-module-boundary-types': 'warn',
       'prettier/prettier': 'error',
-      'nestjs/use-class-validator-dto': 'warn',
+      // 'nestjs/use-class-validator-dto': 'warn',
       'nestjs/parse-int-pipe': 'error',
       'nestjs/deprecated-api-modules': 'warn',
       'nestjs/use-dependency-injection': 'error',

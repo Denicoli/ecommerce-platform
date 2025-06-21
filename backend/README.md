@@ -42,6 +42,7 @@ Os dados são normalizados e salvos localmente no banco, evitando acoplamento di
 git clone https://github.com/seu-usuario/ecommerce-platform.git
 cd ecommerce-platform/backend
 ```
+
 ### 2. Instale as dependências
 
 ```bash
@@ -60,7 +61,6 @@ cp .env.example .env
 npx prisma generate
 npx prisma migrate dev --name init
 ```
-
 
 ### 5. Rode o servidor localmente
 
@@ -87,6 +87,7 @@ A API estará disponível em http://localhost:3000
 ### 📑 Pedidos
 
 - `POST /orders` – Cria um novo pedido com os produtos no corpo
+
 #### 🧾 Payload esperado:
 
 ```json
@@ -99,17 +100,19 @@ A API estará disponível em http://localhost:3000
   ]
 }
 ```
+
 #### 📝 Campos:
 
-| Campo        | Tipo    | Obrigatório | Descrição                                  |
-|--------------|---------|-------------|--------------------------------------------|
-| `items`      | Array   | Sim         | Lista de produtos no pedido                |
-| `productId`  | String  | Sim         | ID do produto a ser adicionado ao pedido   |
-| `quantity`   | Number  | Sim         | Quantidade do produto                      |
+| Campo       | Tipo   | Obrigatório | Descrição                                |
+| ----------- | ------ | ----------- | ---------------------------------------- |
+| `items`     | Array  | Sim         | Lista de produtos no pedido              |
+| `productId` | String | Sim         | ID do produto a ser adicionado ao pedido |
+| `quantity`  | Number | Sim         | Quantidade do produto                    |
 
 - `GET /orders` – Lista todos os pedidos do usuário autenticado
 
 ## 🛠️ Estrutura de Pastas
+
 ```txt
 src/
 ├── auth/         ← Registro, login e JWT
@@ -156,6 +159,7 @@ Interface Web (React) e App mobile (Flutter)
 ---
 
 ## 🧑‍💻 Autor
+
 Desenvolvido por Tiago Denicoli com ❤️ e muita dedicação!
 Entre em contato: tiagodenicoli@gmail.com
 

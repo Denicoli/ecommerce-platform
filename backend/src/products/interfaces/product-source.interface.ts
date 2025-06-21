@@ -10,6 +10,6 @@ export interface NormalizedProduct {
   discount: number | null;
   material: string | null;
   department: string | null;
-  createdAt?: Date,
-  updatedAt?: Date,
+  createdAt?: Date;
+  updatedAt?: Date;
 }
