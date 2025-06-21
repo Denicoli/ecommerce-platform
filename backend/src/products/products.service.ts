@@ -5,6 +5,31 @@ import { EXTERNAL_APIS } from 'src/config/external-apis';
 import { NormalizedProduct } from './interfaces/product-source.interface';
 import { Decimal } from '@prisma/client/runtime/library';
 
+interface ApiBrProduct {
+  id: string;
+  nome: string;
+  descricao?: string;
+  categoria?: string;
+  imagem?: string;
+  preco?: number;
+  material?: string;
+  departamento?: string;
+}
+
+interface ApiEuProduct {
+  id: string;
+  name: string;
+  description?: string;
+  details?: {
+    adjective?: string;
+    material?: string;
+  };
+  image?: string;
+  gallery?: string[];
+  price?: number;
+  discountValue?: number;
+}
+
 @Injectable()
 export class ProductsService {
   private readonly logger = new Logger(ProductsService.name);
@@ -54,7 +79,7 @@ export class ProductsService {
     return url;
   }
 
-  private normalizeApiBr(data: any[], source: 'API_BR'): NormalizedProduct[] {
+  private normalizeApiBr(data: ApiBrProduct[], source: 'API_BR'): NormalizedProduct[] {
     return data.map((item) => {
       const imageUrl = this.convertPlaceimgToPlacehold(item.imagem ?? '');
       return {
@@ -73,7 +98,7 @@ export class ProductsService {
     });
   }
 
-  private normalizeApiEu(data: any[], source: 'API_EU'): NormalizedProduct[] {
+  private normalizeApiEu(data: ApiEuProduct[], source: 'API_EU'): NormalizedProduct[] {
     return data.map((item) => {
       const gallery = Array.isArray(item.gallery)
         ? item.gallery.map((img: string) => this.convertPlaceimgToPlacehold(img))
