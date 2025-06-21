@@ -23,9 +23,9 @@ export class ProductsService {
                 ...this.normalizeApiEu(euRes.data, 'API_EU'),
             ];
 
-            const upserts = products.map(product =>
+            const upserts = products.map((product) =>
                 this.prisma.product.upsert({
-                    where: { 
+                    where: {
                         externalId_source: {
                             externalId: product.externalId,
                             source: product.source,
@@ -33,9 +33,9 @@ export class ProductsService {
                     },
                     update: product,
                     create: product,
-                })
+                }),
             );
-            
+
             await Promise.allSettled(upserts);
 
             this.logger.log(`[SYNC] ${products.length} products synchronized successfully.`);
@@ -45,36 +45,54 @@ export class ProductsService {
         }
     }
 
+    private convertPlaceimgToPlacehold(url: string): string {
+        const regex = /https?:\/\/placeimg\.com\/640\/480\/(.+)/i;
+        const match = url?.match?.(regex);
+        if (match && match[1]) {
+            return `https://placehold.co/640x480?text=${match[1]}`;
+        }
+        return url;
+    }
+
     private normalizeApiBr(data: any[], source: 'API_BR'): NormalizedProduct[] {
-        return data.map(item => ({
-            externalId: item.id,
-            source,
-            name: item.nome,
-            description: item.descricao ?? '',
-            category: item.categoria ?? '',
-            image: item.imagem ?? '',
-            gallery: item.imagem ? [item.imagem] : [],
-            price: item.preco ?? 0,
-            discount: null,
-            material: item.material ?? '',
-            department: item.departamento ?? '',
-        }));
+        return data.map((item) => {
+            const imageUrl = this.convertPlaceimgToPlacehold(item.imagem ?? '');
+            return {
+                externalId: item.id,
+                source,
+                name: item.nome,
+                description: item.descricao ?? '',
+                category: item.categoria ?? '',
+                image: imageUrl,
+                gallery: item.imagem ? [imageUrl] : [],
+                price: item.preco ?? 0,
+                discount: null,
+                material: item.material ?? '',
+                department: item.departamento ?? '',
+            };
+        });
     }
 
     private normalizeApiEu(data: any[], source: 'API_EU'): NormalizedProduct[] {
-        return data.map(item => ({
-            externalId: item.id,
-            source,
-            name: item.name,
-            description: item.description ?? '',
-            category: item.details?.adjective ?? '',
-            image: item.gallery?.[0] ?? '',
-            gallery: item.gallery ?? [],
-            price: item.price ?? 0,
-            discount: item.discountValue ? item.discountValue : null,
-            material: item.details?.material ?? '',
-            department: '',
-        }));
+        return data.map((item) => {
+            const gallery = Array.isArray(item.gallery)
+                ? item.gallery.map((img: string) => this.convertPlaceimgToPlacehold(img))
+                : [];
+            const imageUrl = gallery[0] ?? '';
+            return {
+                externalId: item.id,
+                source,
+                name: item.name,
+                description: item.description ?? '',
+                category: item.details?.adjective ?? '',
+                image: imageUrl,
+                gallery,
+                price: item.price ?? 0,
+                discount: item.discountValue ? item.discountValue : null,
+                material: item.details?.material ?? '',
+                department: '',
+            };
+        });
     }
 
     async findAll(query: any): Promise<NormalizedProduct[]> {
@@ -94,7 +112,7 @@ export class ProductsService {
             },
         });
 
-        return products.map(product => ({
+        return products.map((product) => ({
             ...product,
             price: product.price.toNumber(),
             discount: product.discount ? product.discount.toNumber() : null,
@@ -105,7 +123,7 @@ export class ProductsService {
         const product = await this.prisma.product.findUnique({
             where: { id },
         });
-        
+
         if (!product) return null;
 
         return {
