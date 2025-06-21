@@ -6,13 +6,14 @@ export function Register() {
   const navigate = useNavigate()
   const { register } = useAuth()
 
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await register(email, password)
+      await register(name, email, password)
       navigate('/')
     } catch {
       alert('')
@@ -29,6 +30,16 @@ export function Register() {
       <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
         <h2 className="text-2xl font-semibold mb-6 text-center">Register</h2>
         <form onSubmit={handleRegister} className="space-y-4">
+          <div>
+            <label className="text-sm block mb-1">Name</label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+          </div>
           <div>
             <label className="text-sm block mb-1">Email</label>
             <input

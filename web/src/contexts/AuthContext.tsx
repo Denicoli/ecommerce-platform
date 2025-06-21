@@ -6,7 +6,7 @@ interface AuthContextProps {
   user: string | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
-  register: (email: string, password: string) => Promise<void>
+  register: (name: string, email: string, password: string) => Promise<void>
 }
 
 const AuthContext = createContext({} as AuthContextProps)
@@ -37,9 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     navigate('/login')
   }
 
-  async function register(email: string, password: string): Promise<void> {
+  async function register(
+    name: string,
+    email: string,
+    password: string
+  ): Promise<void> {
     try {
-      await api.post('/auth/register', { email, password })
+      await api.post('/auth/register', { name, email, password })
       navigate('/login')
     } catch (error) {
       console.error('Registration failed:', error)
