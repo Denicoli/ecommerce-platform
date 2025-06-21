@@ -6,6 +6,8 @@ import {
   TransitionChild
 } from '@headlessui/react'
 import { useCart } from '@/contexts/CartContext.helpers'
+import { useAuth } from '@/contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import { Fragment } from 'react'
 import {
   MinusIcon,
@@ -23,6 +25,19 @@ interface CartModalProps {
 export function CartModal({ isOpen, onClose }: CartModalProps) {
   const { cartItems, removeFromCart, incrementQuantity, decrementQuantity } =
     useCart()
+
+  const { user } = useAuth()
+  const navigate = useNavigate()
+
+  function handleCheckout() {
+    if (!user) {
+      onClose()
+      navigate('/login')
+      return
+    }
+    onClose()
+    navigate('/checkout')
+  }
 
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -123,13 +138,13 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
                       <span>Subtotal</span>
                       <span>${total.toFixed(2)}</span>
                     </div>
-                    <Link
-                      to="/checkout"
+                    <button
+                      type="button"
                       className="mt-4 block w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center py-2 rounded-lg font-medium"
-                      onClick={onClose}
+                      onClick={handleCheckout}
                     >
                       Checkout
-                    </Link>
+                    </button>
                   </div>
                 </div>
               )}
