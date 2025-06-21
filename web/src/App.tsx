@@ -16,7 +16,9 @@ function App() {
   const [isCartOpen, setCartOpen] = useState(false)
   const queryClient = useQueryClient()
   const location = useLocation()
-  const hideHeader = ['/login', '/register'].includes(location.pathname)
+  const hideHeader = ['/login', '/register', '/checkout'].includes(
+    location.pathname
+  )
 
   useEffect(() => {
     queryClient.prefetchQuery({
