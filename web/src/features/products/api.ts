@@ -1,9 +1,16 @@
 import { api } from '@/services/api'
 import type { Product } from './types'
 
-export async function fetchProducts(search: string = ''): Promise<Product[]> {
-  const response = await api.get('/products', {
-    params: search ? { name: search } : {}
-  })
+type FetchProductsParams = {
+  name?: string
+  category?: string
+  minPrice?: string
+  maxPrice?: string
+}
+
+export async function fetchProducts(
+  params: FetchProductsParams = {}
+): Promise<Product[]> {
+  const response = await api.get('/products', { params })
   return response.data
 }
