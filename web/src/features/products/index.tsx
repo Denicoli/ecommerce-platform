@@ -1,8 +1,12 @@
 import { useProducts } from './hooks/useProducts'
 import { ProductList } from './components/ProductList'
+import { useSearchParams } from 'react-router-dom'
 
 export default function ProductsPage() {
-  const { data: products, isLoading, isError } = useProducts()
+  const [searchParams] = useSearchParams()
+  const search = searchParams.get('search') || ''
+
+  const { data: products, isLoading, isError } = useProducts(search)
 
   if (isLoading)
     return (

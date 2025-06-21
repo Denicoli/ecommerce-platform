@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { fetchProducts } from './features/products/api'
 import { CartProvider } from './contexts/CartContext'
-import { CartModal } from './components/CartModal'
+import { CartModal } from './features/cart/components/CartModal'
 
 function App() {
   const [isCartOpen, setCartOpen] = useState(false)
@@ -17,7 +17,7 @@ function App() {
   useEffect(() => {
     queryClient.prefetchQuery({
       queryKey: ['products'],
-      queryFn: fetchProducts
+      queryFn: () => fetchProducts
     })
   }, [queryClient])
 
