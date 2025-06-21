@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../services/api'
 
@@ -6,6 +6,7 @@ interface AuthContextProps {
   user: string | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
+  register: (email: string, password: string) => Promise<void>
 }
 
 const AuthContext = createContext({} as AuthContextProps)
@@ -13,6 +14,13 @@ const AuthContext = createContext({} as AuthContextProps)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<string | null>(null)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      setUser('user')
+    }
+  }, [])
 
   async function login(email: string, password: string) {
     const response = await api.post('/auth/login', { email, password })
@@ -29,8 +37,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     navigate('/login')
   }
 
+  async function register(email: string, password: string): Promise<void> {
+    try {
+      await api.post('/auth/register', { email, password })
+      navigate('/login')
+    } catch (error) {
+      console.error('Registration failed:', error)
+      throw error
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   )

@@ -1,25 +1,22 @@
+import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
 
-export function Login() {
-  const { login } = useAuth()
+export function Register() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const from = location.state?.from?.pathname || '/'
+  const { register } = useAuth()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const handleLogin = async (event: React.FormEvent) => {
-    event.preventDefault()
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
     try {
-      await login(email, password)
-      navigate(from, { replace: true })
+      await register(email, password)
+      navigate('/')
     } catch {
-      alert('Error logging in. Please check your credentials.')
+      alert('')
     }
-    login(email, password)
   }
 
   return (
@@ -30,8 +27,8 @@ export function Login() {
         </Link>
       </div>
       <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-semibold mb-6 text-center">Login</h2>
-        <form onSubmit={handleLogin} className="space-y-4">
+        <h2 className="text-2xl font-semibold mb-6 text-center">Register</h2>
+        <form onSubmit={handleRegister} className="space-y-4">
           <div>
             <label className="text-sm block mb-1">Email</label>
             <input
@@ -54,15 +51,15 @@ export function Login() {
           </div>
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-colors duration-200 font-medium"
+            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-colors font-medium"
           >
-            Login
+            Register
           </button>
         </form>
         <p className="text-sm text-gray-600 mt-4 text-center">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-indigo-600 hover:underline">
-            Register here
+          Already have an account?{' '}
+          <Link to="/login" className="text-indigo-600 hover:underline">
+            Login
           </Link>
         </p>
       </div>
